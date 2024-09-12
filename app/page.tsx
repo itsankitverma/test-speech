@@ -52,10 +52,10 @@ const BrowserDetection = () => {
     <div>
       {/* Show banner if specific OS-browser combinations are detected */}
       {browserInfo &&
-        ((browserInfo.os === "Windows" &&
-          browserInfo.browser === "Mozilla Firefox") ||
-          (browserInfo.os === "MacOS" &&
-            browserInfo.browser === "Microsoft Edge")) && <BrowserBanner />}
+        ((browserInfo.browser === "Edge" &&
+          (browserInfo.os === "Mac OS" || browserInfo.os === "iOS")) ||
+          (browserInfo.browser === "Firefox" &&
+            browserInfo.os === "Windows")) && <BrowserBanner />}
 
       {/* Only show VoiceToTextComponent if on Chrome and Desktop */}
       {<VoiceToTextComponent />}
