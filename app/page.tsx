@@ -3,51 +3,8 @@
 import { useEffect, useState } from "react";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import VoiceToTextComponent from "@/components/voiceToText";
+import UAParser from "ua-parser-js";
 
-// Function to detect browser, device type, and OS
-const getBrowserDeviceAndOSInfo = () => {
-  const userAgent = navigator.userAgent;
-  let browser = "Unknown Browser";
-  let device = "Desktop";
-  let os = "Unknown OS";
-
-  // Detect browser
-  if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
-    browser = "Google Chrome";
-  } else if (userAgent.includes("Firefox")) {
-    browser = "Mozilla Firefox";
-  } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
-    browser = "Apple Safari";
-  } else if (userAgent.includes("Edg")) {
-    browser = "Microsoft Edge";
-  } else if (userAgent.includes("Opera") || userAgent.includes("OPR")) {
-    browser = "Opera";
-  }
-
-  // Detect device (mobile vs desktop)
-  const mobileDevices =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-  if (mobileDevices.test(userAgent)) {
-    device = "Mobile";
-  }
-
-  // Detect OS
-  if (userAgent.includes("Win")) {
-    os = "Windows";
-  } else if (userAgent.includes("Mac")) {
-    os = "MacOS";
-  } else if (userAgent.includes("Linux")) {
-    os = "Linux";
-  } else if (/iPhone|iPad|iPod/.test(userAgent)) {
-    os = "iOS";
-  } else if (userAgent.includes("Android")) {
-    os = "Android";
-  }
-
-  return { browser, device, os };
-};
-
-// Banner Component to display warning messages
 const BrowserBanner = () => {
   return (
     <Alert className="bg-yellow-100 text-yellow-900 p-4 rounded-md shadow-lg">
@@ -68,6 +25,24 @@ const BrowserDetection = () => {
     device: string;
     os: string;
   } | null>(null);
+
+  const getBrowserDeviceAndOSInfo = () => {
+    const parser = new UAParser();
+    const result = parser.getResult();
+
+    const browser = result.browser.name || "Unknown Browser";
+    const device = result.device.type ? result.device.type : "Desktop";
+    const os = result.os.name || "Unknown OS";
+
+    return { browser, device, os };
+  };
+
+  useEffect(() => {
+    (function name() {
+      const data = getBrowserDeviceAndOSInfo();
+      console.log("data", data);
+    })();
+  }, []);
 
   useEffect(() => {
     setBrowserInfo(getBrowserDeviceAndOSInfo());
