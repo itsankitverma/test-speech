@@ -1,79 +1,80 @@
 "use client";
 
-import React, { useState } from "react";
-import { useVoiceToText } from "react-speakup";
-import { Mic, MicOff, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import VoiceToTextComponent from "@/components/voiceToText";
 
-const VoiceToTextComponent = () => {
-  const { startListening, stopListening, transcript, reset } = useVoiceToText();
-  const [isListening, setIsListening] = useState(false);
+// Function to detect browser and device type
+const getBrowserAndDeviceInfo = () => {
+  const userAgent = navigator.userAgent;
+  let browser = "Unknown Browser";
+  let device = "Desktop";
 
-  const handleStartListening = () => {
-    startListening();
-    setIsListening(true);
-  };
+  // Detect browser
+  if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
+    browser = "Google Chrome";
+  } else if (userAgent.includes("Firefox")) {
+    browser = "Mozilla Firefox";
+  } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
+    browser = "Apple Safari";
+  } else if (userAgent.includes("Edg")) {
+    browser = "Microsoft Edge";
+  } else if (userAgent.includes("Opera") || userAgent.includes("OPR")) {
+    browser = "Opera";
+  }
 
-  const handleStopListening = () => {
-    stopListening();
-    setIsListening(false);
-  };
+  // Detect device (mobile vs desktop)
+  const mobileDevices =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+  if (mobileDevices.test(userAgent)) {
+    device = "Mobile";
+  }
 
-  const handleReset = () => {
-    reset();
-    setIsListening(false);
-  };
+  return { browser, device };
+};
 
+// Banner Component to display when not using Chrome or on mobile
+const BrowserBanner = () => {
   return (
-    <Card className="w-full max-w-3xl mx-auto shadow-lg">
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold mb-2">Voice to Text</CardTitle>
-        <CardDescription>
-          Speak clearly and watch your words appear below
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-8">
-        <div className="flex justify-center space-x-4">
-          <Button
-            onClick={isListening ? handleStopListening : handleStartListening}
-            variant={isListening ? "destructive" : "default"}
-            size="lg"
-            className="w-40"
-          >
-            {isListening ? (
-              <>
-                <MicOff className="mr-2 h-5 w-5" /> Stop
-              </>
-            ) : (
-              <>
-                <Mic className="mr-2 h-5 w-5" /> Start
-              </>
-            )}
-          </Button>
-          <Button
-            onClick={handleReset}
-            variant="outline"
-            size="lg"
-            className="w-40"
-          >
-            <Trash2 className="mr-2 h-5 w-5" /> Reset
-          </Button>
-        </div>
-        <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-          <p className="text-lg text-gray-700 min-h-[100px]">
-            {transcript || "Your spoken words will appear here..."}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    <Alert className="bg-yellow-100 text-yellow-900 p-4 rounded-md shadow-lg">
+      <AlertTitle className="text-xl font-bold">
+        Browser or Device Warning
+      </AlertTitle>
+      <p>
+        For better performance and user experience, we recommend switching to{" "}
+        <strong>Google Chrome</strong> on a <strong>Desktop</strong>.
+      </p>
+    </Alert>
   );
 };
 
-export default VoiceToTextComponent;
+const BrowserDetection = () => {
+  const [browserInfo, setBrowserInfo] = useState<{
+    browser: string;
+    device: string;
+  } | null>(null);
+
+  useEffect(() => {
+    setBrowserInfo(getBrowserAndDeviceInfo());
+  }, []);
+
+  return (
+    <div>
+      {/* Only show the banner if not using Chrome or if on mobile */}
+      {browserInfo &&
+        (browserInfo.browser !== "Google Chrome" ||
+          browserInfo.device === "Mobile") && <BrowserBanner />}
+
+      {/* Only show VoiceToTextComponent if on Chrome and Desktop */}
+      {browserInfo &&
+        browserInfo.browser === "Google Chrome" &&
+        browserInfo.device === "Desktop" && <VoiceToTextComponent />}
+
+      <h1>
+        You are using: {browserInfo?.browser} on {browserInfo?.device}
+      </h1>
+    </div>
+  );
+};
+
+export default BrowserDetection;
