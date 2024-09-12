@@ -67,8 +67,7 @@ const BrowserDetection = () => {
 
       {/* Only show VoiceToTextComponent if on Chrome and Desktop */}
       {browserInfo &&
-        browserInfo.browser === "Google Chrome" &&
-        browserInfo.device === "Desktop" && <VoiceToTextComponent />}
+        browserInfo.browser === "Google Chrome" &&<VoiceToTextComponent />}
 
       <h1>
         You are using: {browserInfo?.browser} on {browserInfo?.device}
