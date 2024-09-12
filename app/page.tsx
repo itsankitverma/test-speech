@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import VoiceToTextComponent from "@/components/voiceToText";
 
-// Function to detect browser and device type
-const getBrowserAndDeviceInfo = () => {
+// Function to detect browser, device type, and OS
+const getBrowserDeviceAndOSInfo = () => {
   const userAgent = navigator.userAgent;
   let browser = "Unknown Browser";
   let device = "Desktop";
+  let os = "Unknown OS";
 
   // Detect browser
   if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
@@ -30,10 +31,23 @@ const getBrowserAndDeviceInfo = () => {
     device = "Mobile";
   }
 
-  return { browser, device };
+  // Detect OS
+  if (userAgent.includes("Win")) {
+    os = "Windows";
+  } else if (userAgent.includes("Mac")) {
+    os = "MacOS";
+  } else if (userAgent.includes("Linux")) {
+    os = "Linux";
+  } else if (/iPhone|iPad|iPod/.test(userAgent)) {
+    os = "iOS";
+  } else if (userAgent.includes("Android")) {
+    os = "Android";
+  }
+
+  return { browser, device, os };
 };
 
-// Banner Component to display when not using Chrome or on mobile
+// Banner Component to display warning messages
 const BrowserBanner = () => {
   return (
     <Alert className="bg-yellow-100 text-yellow-900 p-4 rounded-md shadow-lg">
@@ -52,25 +66,28 @@ const BrowserDetection = () => {
   const [browserInfo, setBrowserInfo] = useState<{
     browser: string;
     device: string;
+    os: string;
   } | null>(null);
 
   useEffect(() => {
-    setBrowserInfo(getBrowserAndDeviceInfo());
+    setBrowserInfo(getBrowserDeviceAndOSInfo());
   }, []);
 
   return (
     <div>
-      {/* Only show the banner if not using Chrome or if on mobile */}
+      {/* Show banner if specific OS-browser combinations are detected */}
       {browserInfo &&
-        (browserInfo.browser !== "Google Chrome" ||
-          browserInfo.device === "Mobile") && <BrowserBanner />}
+        ((browserInfo.os === "Windows" &&
+          browserInfo.browser === "Mozilla Firefox") ||
+          (browserInfo.os === "MacOS" &&
+            browserInfo.browser === "Microsoft Edge")) && <BrowserBanner />}
 
       {/* Only show VoiceToTextComponent if on Chrome and Desktop */}
-      {browserInfo &&
-        browserInfo.browser === "Google Chrome" &&<VoiceToTextComponent />}
+      {<VoiceToTextComponent />}
 
       <h1>
-        You are using: {browserInfo?.browser} on {browserInfo?.device}
+        You are using: {browserInfo?.browser} on {browserInfo?.device} with{" "}
+        {browserInfo?.os}
       </h1>
     </div>
   );
